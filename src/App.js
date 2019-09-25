@@ -36,18 +36,18 @@ class App extends Component {
   onClickNumber = (e) => {
     const { target } = e;
     const { value } = target;
-    const { isDecimal, isCalcAction } = this.state;
+    const { isDecimal, isCalcAction} = this.state;
     if (!isDecimal) {
       if (!isCalcAction) {
-        this.setState(prevstate => ({ prevValue: (prevstate.prevValue + '' + value) }), () => {
+        this.setState(prevstate => ({ prevValue: (Number(prevstate.prevValue) === 0 || prevstate.prevValue === '0' ? value : prevstate.prevValue + '' + value) }), () => {
           this.setState({
-            answer: parseFloat(this.state.prevValue.replace(/ /g, ''))
+            answer: (this.state.prevValue.replace(/ /g, ''))
           })
         });
       } else {
-        this.setState(prevstate => ({ nextValue: (prevstate.nextValue + '' + value) }), () => {
+        this.setState(prevstate => ({ nextValue: (Number(prevstate.nextValue) === 0 || prevstate.nextValue === '0' ? value : prevstate.nextValue + '' + value) }), () => {
           this.setState({
-            answer: parseFloat(this.state.nextValue.replace(/ /g, ''))
+            answer: (this.state.nextValue.replace(/ /g, ''))
           })
         });
       }
@@ -55,13 +55,13 @@ class App extends Component {
       if (!isCalcAction) {
         this.setState(prevstate => ({ prevValue: prevstate.prevValue.toString().includes('.') > -1 ? (prevstate.prevValue + '' + value) : (prevstate.prevValue + '.' + value) }), () => {
           this.setState({
-            answer: parseFloat(this.state.prevValue.replace(/ /g, ''))
+            answer: (this.state.prevValue.replace(/ /g, ''))
           })
         });
       } else {
         this.setState(prevstate => ({ nextValue: prevstate.nextValue.toString().includes('.') > -1 ? (prevstate.nextValue + '' + value) : (prevstate.nextValue + '.' + value) }), () => {
           this.setState({
-            answer: parseFloat(this.state.nextValue.replace(/ /g, ''))
+            answer: (this.state.nextValue.replace(/ /g, ''))
           })
         });
       }
@@ -93,14 +93,14 @@ class App extends Component {
         result = subtract(bignumber(newPreValue), bignumber(newNextValue));
         break;
       default:
-        result = bignumber(newNextValue);
+        result = bignumber(isCalcAction ? newNextValue : newPreValue);
         break;
     }
     this.onValidateCaclc(result.toNumber());
   }
 
   onValidateCaclc = (data) => {
-    let message = data;
+    let message = data.toString();
     if (!isFinite(data)) {
       if (isNaN(data)) {
         message = "Result is undefined"
@@ -108,12 +108,11 @@ class App extends Component {
         message = "Cannot divide by zero‬";
       }
     }
-    this.setState({ answer: message, resultData: data, prevValue: data.toString(), nextValue: 0, isCalcAction: false, isDecimal: !!(data % 1) })
+    this.setState({ answer: message, resultData: data, prevValue: !isFinite(data) ? '0' : data.toString(), nextValue: '0', isCalcAction: false, isDecimal: !!(data % 1) })
   }
 
   render() {
     const { answer } = this.state;
-    console.log('render', this.state);
     return (
       <Fragment>
         <div className="calc-box">
